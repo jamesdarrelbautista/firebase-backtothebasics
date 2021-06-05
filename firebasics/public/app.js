@@ -1,35 +1,29 @@
-const auth = firebase.auth();
+const db = firebase.firestore();
 
+const createThing = document.getElementById('createThing');
 
+const thingsList = document.getElementById('thingsList');
 
-// console.log(firebase);
-document.addEventListener("DOMContentLoaded", () => {
-    const whenSignedIn = document.getElementById('whenSignedIn');
-    const whenSignedOut = document.getElementById('whenSignedOut');
+let thingsRef;
+let unsubscribe;
 
-    const signInBtn = document.getElementById('signInBtn');
-    const signOutBtn = document.getElementById('signOutBtn');
-    const userDetails = document.getElementById('userDetails');
+auth.onAuthStateChanged(user => {
 
-    const provider = new firebase.auth.GoogleAuthProvider();
+    if (user) {
+        thingsRef = db.collection('things');
 
-    signInBtn.onclick = () => auth.signInWithPopup(provider);
+        const {serverTimestamp} = firebase.firestore.FieldValue;
 
-    signOutBtn.onclick = () => auth.signOut();
+        createThing.onclick = () => {
+            thingsRef.add({
+                uid: user.uid,
+                name: faker.commerce.productName(),
+                createdAt: serverTimestamp()
 
-    auth.onAuthStateChanged(user => {
-
-        if (user) {
-            whenSignedIn.hidden = false;
-            whenSignedOut.hidden = true;
-            userDetails.innerHTML = `<h3>Hello ${user.displayName}!</h3> <p>UserID: ${user.uid}</p>`;
-        } else {
-            whenSignedIn.hidden = true;
-            whenSignedOut.hidden = false;
-            userDetails.innerHTML = '';
+            });
         }
-    });
-});
 
+    }
+}
 
-
+)
